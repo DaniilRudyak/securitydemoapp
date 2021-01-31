@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -16,16 +17,18 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import static com.example.securitydemo.security.ApplicationUserRole.*;
 import static com.example.securitydemo.security.ApplicationUserPermission.*;
+
 /*
-* ПОРЯДОК antMatchers ОЧЕНЬ ВАЖЕН ТАК КАК ПРОИСХОДИТ ПЕРЕБОРКА СОВПАДЕНИЙ
-* НАПРИМЕР antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name()) ЕСЛИ Я
-* УБЕРУ ОПРЕДЕЛЕНИЕ МЕТОДА HTTTP antMatchers("/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())ТО
-* ПРИ КОМПИЛЯЦИИ МОЖНО ДАТЬ ПРАВА НЕ ТОМУ ПОЛЬЗОВАТЕЛЮ(в зависимости его расположения)
-*
-*
-* */
+ * ПОРЯДОК antMatchers ОЧЕНЬ ВАЖЕН ТАК КАК ПРОИСХОДИТ ПЕРЕБОРКА СОВПАДЕНИЙ
+ * НАПРИМЕР antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name()) ЕСЛИ Я
+ * УБЕРУ ОПРЕДЕЛЕНИЕ МЕТОДА HTTTP antMatchers("/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())ТО
+ * ПРИ КОМПИЛЯЦИИ МОЖНО ДАТЬ ПРАВА НЕ ТОМУ ПОЛЬЗОВАТЕЛЮ(в зависимости его расположения)
+ *
+ *
+ * */
 @Configuration//конфигурация нужна там где определяются бины
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)//вроде как для preauthriza
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
@@ -43,10 +46,10 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(STUDENT.name())
-                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
-                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
-                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
-                .antMatchers( "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
+//                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+//                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+//                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+//                .antMatchers( "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
                 .anyRequest()
                 .authenticated()
                 .and()
